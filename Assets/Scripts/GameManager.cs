@@ -1,30 +1,39 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    [Header("Manual setting")]
-    public int targetNum;
+    MapGenerator map;
 
-    [Header("Auto detection")]
-    public int finishedNum = 0;
-
-    public void CheckGoal()
+    private void Awake()
     {
-        // 框架仅识别目标数量与箱子数量是否一致
-        if (targetNum == finishedNum)
+        map = FindObjectOfType<MapGenerator>();
+    }
+
+    public void CheckTarget()
+    {
+        int num = 0;
+        foreach (var target in map.targets)
         {
-            Debug.Log("Level finished");
-            
-            // 加载下一关
-            // StartCoroutine(LoadNextLevel());
+            if (map.boxes.ContainsKey(target))
+                num++;
+        }
+        if (num == map.targets.Count)
+        {
+            Debug.Log("Win");
+
+            StartCoroutine(LoadNextLevel());
         }
     }
 
     IEnumerator LoadNextLevel()
     {
         yield return new WaitForSeconds(3);
+
+        // play animation
+        // load next level
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
     }
 }
