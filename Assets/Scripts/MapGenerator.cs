@@ -10,33 +10,36 @@ public class MapGenerator : MonoBehaviour
 
     public GameObject player;
     public GameObject wall;
-    public GameObject box;
+    public GameObject item;
     public GameObject target;
     public GameObject isbox;
-    public GameObject[] letters;
+    public GameObject[] letter;
 
     // keep track of objects
-    public Dictionary<(int, int), GameObject> boxes;
     public HashSet<(int, int)> walls;
     public List<(int, int)> targets;
+    public Dictionary<(int, int), Letter> letters;
+    public Dictionary<(int, int), Be> bes;
+    public Dictionary<(int, int), Item> items;
 
     private void Awake()
     {
-        boxes = new Dictionary<(int, int), GameObject>();
+        letters = new Dictionary<(int, int), Letter>();
+        bes = new Dictionary<(int, int), Be>();
+        items = new Dictionary<(int, int), Item>();
         walls = new HashSet<(int, int)>();
         targets = new List<(int, int)>();
 
         // load prefabs
+        item = LoadPrefab("Box");
         player = LoadPrefab("Player");
         wall = LoadPrefab("Wall");
-        box = LoadPrefab("Box");
         target = LoadPrefab("Target");
         isbox = LoadPrefab("Is");
-
-        letters = new GameObject[26];
-        for (char c = 'A'; c <= 'Z'; c++)
+        letter = new GameObject[26];
+        for (char c = 'a'; c <= 'z'; c++)
         {
-            letters[c - 'A'] = LoadPrefab(c.ToString());
+            letter[c - 'a'] = LoadPrefab(c.ToString());
         }
     }
 
@@ -51,54 +54,52 @@ public class MapGenerator : MonoBehaviour
         }
         map = mapTextAsset.text.Split('\n');
 
+        FindObjectOfType<Camera>().transform.position = new Vector3(map[0].Length / 2, map.Length / 2, -10);
+
+
         // draw map
-        int y_pos = map.Length / 2;
+        int y_pos = map.Length;
         foreach (var row in map)
         {
-            int x_pos = -map.Length / 2;
+            int x_pos = 0;
             for (int i = 0; i < row.Length; i++)
             {
-                // player
-                if (row[i] == '@')
-                {
-                    Instantiate(player, new Vector3(x_pos, y_pos), Quaternion.identity);
-                }
+                char tileType = row[i];
 
-                // wall
-                if (row[i] == '#')
+                switch (tileType)
                 {
-                    Instantiate(wall, new Vector3(x_pos, y_pos), Quaternion.identity);
-                    walls.Add((x_pos, y_pos));
-                }
+                    // player
+                    case '@':
+                        Instantiate(player, new Vector3(x_pos, y_pos), Quaternion.identity);
+                        break;
 
-                // box or object
-                if (row[i] == '+')
-                {
-                    GameObject boxObj = Instantiate(box, new Vector3(x_pos, y_pos), Quaternion.identity);
-                    boxes.Add((x_pos, y_pos), boxObj);
-                }
+                    // wall
+                    case '#':
+                        Instantiate(wall, new Vector3(x_pos, y_pos), Quaternion.identity);
+                        walls.Add((x_pos, y_pos));
+                        break;
 
-                // target
-                if (row[i] == '.')
-                {
-                    Instantiate(target, new Vector3(x_pos, y_pos), Quaternion.identity);
-                    targets.Add((x_pos, y_pos));
-                }
+                    // target
+                    case '.':
+                        Instantiate(target, new Vector3(x_pos, y_pos), Quaternion.identity);
+                        targets.Add((x_pos, y_pos));
+                        break;
 
-                // is
-                if (row[i] == '-')
-                {
-                    GameObject isObj = Instantiate(isbox, new Vector3(x_pos, y_pos), Quaternion.identity);
-                    boxes.Add((x_pos, y_pos), isObj);
-                }
+                    // is
+                    case '-':
+                        GameObject isObj = Instantiate(isbox, new Vector3(x_pos, y_pos), Quaternion.identity);
+                        bes.Add((x_pos, y_pos), new Be(isObj, BeType.IS));
+                        break;
 
-                // letters
-                if (row[i] >= 'A' && row[i] <= 'Z')
-                {
-                    GameObject letterObj = Instantiate(letters[row[i] - 'A'], new Vector3(x_pos, y_pos), Quaternion.identity);
-                    boxes.Add((x_pos, y_pos), letterObj);
+                    // letter
+                    default:
+                        if (tileType >= 'a' && tileType <= 'z')
+                        {
+                            GameObject letterObj = Instantiate(letter[row[i] - 'a'], new Vector3(x_pos, y_pos), Quaternion.identity);
+                            letters.Add((x_pos, y_pos), new Letter(letterObj, row[i]));
+                        }
+                        break;
                 }
-
                 x_pos++;
             }
             y_pos--;

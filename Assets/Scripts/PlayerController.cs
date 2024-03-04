@@ -33,20 +33,39 @@ public class PlayerController : MonoBehaviour
             if (IsWall(nx, ny))
                 return;
 
-            if (IsBox(nx, ny))
+            int nnx = dx + nx;
+            int nny = dy + ny;
+
+            if (IsLetter(nx, ny))
             {
-                int nnx = dx + nx;
-                int nny = dy + ny;
-                if (IsWall(nnx, nny) || IsBox(nnx, nny))
+                if (IsMovable(nnx, nny))
                     return;
-                GameObject box = GetBox(nx, ny);
-                box.transform.position = new Vector3(nnx, nny);
-                map.boxes.Remove((nx, ny));
-                map.boxes.Add((nnx, nny), box);
+                Letter letter = map.letters[(nx, ny)];
+                letter.obj.transform.position = new Vector3(nnx, nny);
+
+                map.letters.Remove((nx, ny));
+                map.letters.Add((nnx, nny), letter);
+            } 
+            else if (IsBe(nx, ny))
+            {
+                if (IsMovable(nnx, nny))
+                    return;
+                Be be = map.bes[(nx, ny)];
+                be.obj.transform.position = new Vector3(nnx, nny);
+
+                map.bes.Remove((nx, ny));
+                map.bes.Add((nnx, nny), be);
             }
+
             transform.position = new Vector3(nx, ny);
+            FindObjectOfType<GameManager>().CheckWord();
             FindObjectOfType<GameManager>().CheckTarget();
         }
+    }
+
+    private bool IsMovable(int x, int y)
+    {
+        return IsWall(x, y) || IsLetter(x, y) || IsBe(x, y);
     }
 
     private bool IsWall(int x, int y)
@@ -54,13 +73,13 @@ public class PlayerController : MonoBehaviour
         return map.walls.Contains((x, y));
     }
 
-    private bool IsBox(int x, int y)
+    private bool IsLetter(int x, int y)
     {
-        return map.boxes.ContainsKey((x, y));
+        return map.letters.ContainsKey((x, y));
     }
 
-    private GameObject GetBox(int x, int y)
+    private bool IsBe(int x, int y)
     {
-        return map.boxes[(x, y)];
+        return map.bes.ContainsKey((x, y));
     }
 }
