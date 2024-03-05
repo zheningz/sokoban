@@ -56,6 +56,16 @@ public class PlayerController : MonoBehaviour
                 map.bes.Remove((nx, ny));
                 map.bes.Add((nnx, nny), be);
             }
+            else if (IsItem(nx, ny))
+            {
+                if (IsMovable(nnx, nny))
+                    return;
+                Item item = map.items[(nx, ny)];
+                item.obj.transform.position = new Vector3(nnx, nny);
+
+                map.items.Remove((nx, ny));
+                map.items.Add((nnx, nny), item);
+            }
 
             transform.position = new Vector3(nx, ny);
             FindObjectOfType<GameManager>().CheckWord();
@@ -65,7 +75,7 @@ public class PlayerController : MonoBehaviour
 
     private bool IsMovable(int x, int y)
     {
-        return IsWall(x, y) || IsLetter(x, y) || IsBe(x, y);
+        return IsWall(x, y) || IsLetter(x, y) || IsBe(x, y) || IsItem(x, y);
     }
 
     private bool IsWall(int x, int y)
@@ -81,5 +91,10 @@ public class PlayerController : MonoBehaviour
     private bool IsBe(int x, int y)
     {
         return map.bes.ContainsKey((x, y));
+    }
+
+    private bool IsItem(int x, int y)
+    {
+        return map.items.ContainsKey((x, y));
     }
 }

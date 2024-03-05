@@ -31,7 +31,6 @@ public class MapGenerator : MonoBehaviour
         targets = new List<(int, int)>();
 
         // load prefabs
-        item = LoadPrefab("Box");
         player = LoadPrefab("Player");
         wall = LoadPrefab("Wall");
         target = LoadPrefab("Target");
@@ -54,8 +53,8 @@ public class MapGenerator : MonoBehaviour
         }
         map = mapTextAsset.text.Split('\n');
 
+        // set camera at centre
         FindObjectOfType<Camera>().transform.position = new Vector3(map[0].Length / 2, map.Length / 2, -10);
-
 
         // draw map
         int y_pos = map.Length;
@@ -91,6 +90,12 @@ public class MapGenerator : MonoBehaviour
                         bes.Add((x_pos, y_pos), new Be(isObj, BeType.IS));
                         break;
 
+                    // are
+                    case '=':
+                        GameObject areObj = Instantiate(isbox, new Vector3(x_pos, y_pos), Quaternion.identity);
+                        bes.Add((x_pos, y_pos), new Be(areObj, BeType.ARE));
+                        break;
+
                     // letter
                     default:
                         if (tileType >= 'a' && tileType <= 'z')
@@ -109,5 +114,12 @@ public class MapGenerator : MonoBehaviour
     private GameObject LoadPrefab(string prefabName)
     {
         return Resources.Load<GameObject>("Prefabs/" + prefabName);
+    }
+
+    public void InstantiateItem(int x, int y, string itemName)
+    {
+        item = LoadPrefab(itemName);
+        GameObject itemObj = Instantiate(item, new Vector3(x, y), Quaternion.identity);
+        items.Add((x, y), new Item(itemObj));
     }
 }
