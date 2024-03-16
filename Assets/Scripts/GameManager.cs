@@ -14,6 +14,9 @@ public class GameManager : MonoBehaviour
 
         wordBook = new WordBook();
         wordBook.Load();
+
+        // test search function
+        wordBook.SearchWords("ap");
     }
 
     public void CheckWord()
@@ -102,4 +105,5 @@ public class GameManager : MonoBehaviour
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
         }
     }
+
 }

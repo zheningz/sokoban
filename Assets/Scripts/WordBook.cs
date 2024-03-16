@@ -26,4 +26,22 @@ public class WordBook
             words.Add(property.Name, property.Value.ToString());
         }
     }
+
+    public List<string> SearchWords(string input)
+    {
+        List<string> results = new List<string>();
+        foreach (var word in words.Keys)
+        {
+            if (word.StartsWith(input))
+            {
+                results.Add(word);
+            }
+        }
+        // print to console to see the words
+        foreach (var word in results)
+        {
+            Debug.Log(word);
+        }
+        return results;
+    }
 }
